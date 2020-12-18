@@ -68,6 +68,7 @@ namespace Server {
 		// system.registerComponent(...)
 
 		// Set up any events you wish to listen to
+		system.listenForEvent("minecraft:entity_death", makeObserver)
 		system.listenForEvent("teamfights:pinky", receivePinkyMessage);
 
 		// Enable full logging, useful for seeing errors, you will probably want to disable this for
@@ -93,7 +94,14 @@ namespace Server {
 		}
 	}
 
-	const makeObserver = (player: any) => {
+	const makeObserver = (event: IEventData<IEntityDeathEventData>) => {
+		if (event.data.entity.__identifier__ == "minecraft:player")
+		{
+			system.executeCommand(`effect ${event.data.entity.id} invisibility 99999 255 true`, () => {})
+			system.executeCommand(`gamemode ${event.data.entity.id} a`, () => {})
+			system.executeCommand(`effect ${event.data.entity.id} resistance 99999 255 true`, () => {})
+			system.executeCommand(`effect ${event.data.entity.id} weakness 99999 255 true`, () => {})
+		}
 	} 
 }
 
