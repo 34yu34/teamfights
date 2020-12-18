@@ -85,10 +85,10 @@ namespace Server {
 	}
 
 	const makeObserver = (player: Player) => {
-		system.executeCommand(`effect ${player.id} invisibility 99999 255 true`, () => {})
-		system.executeCommand(`gamemode ${player.id} a`, () => {})
-		system.executeCommand(`effect ${player.id} resistance 99999 255 true`, () => {})
-		system.executeCommand(`effect ${player.id} weakness 99999 255 true`, () => {})
+		system.executeCommand(`effect ${player.name} invisibility 99999 255 true`, () => {})
+		system.executeCommand(`gamemode ${player.name} a`, () => {})
+		system.executeCommand(`effect ${player.name} resistance 99999 255 true`, () => {})
+		system.executeCommand(`effect ${player.name} weakness 99999 255 true`, () => {})
 	}
 
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
