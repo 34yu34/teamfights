@@ -1,17 +1,10 @@
 /// <reference types="minecraft-scripting-types-server" />
 
-interface Entity
+class Player implements IEntity
 {
-	__type__: string;
-	__identifier__: string;
-	id: number;
-}
-
-class Player implements Entity
-{
-	__identifier__: string;
-	__type__: string;
-	id: number;
+	readonly __identifier__: string;
+	readonly __type__: "entity" | "item_entity";
+	readonly id: number;
 }
 
 class Team
@@ -58,6 +51,7 @@ class Game
 
 namespace Server {
 	var system = server.registerSystem(0, 0);
+	let players: Player[];
 
 	// Setup which events to listen for
 	system.initialize = function () {
@@ -68,8 +62,11 @@ namespace Server {
 		// system.registerComponent(...)
 
 		// Set up any events you wish to listen to
-		system.listenForEvent("minecraft:entity_death", makeObserver)
+		players = []
+
+		system.listenForEvent("minecraft:entity_death", onEntityDeath)
 		system.listenForEvent("teamfights:pinky", receivePinkyMessage);
+		system.listenForEvent("teamfights:player_connected", addPlayer)
 
 		// Enable full logging, useful for seeing errors, you will probably want to disable this for
 		// release versions of your scripts.
@@ -79,6 +76,8 @@ namespace Server {
 		scriptLoggerConfig.data.log_information = true;
 		scriptLoggerConfig.data.log_warnings = true;
 		system.broadcastEvent(SendToMinecraftServer.ScriptLoggerConfig, scriptLoggerConfig);
+
+
 	}
 
 	// per-tick updates
@@ -94,14 +93,24 @@ namespace Server {
 		}
 	}
 
-	const makeObserver = (event: IEventData<IEntityDeathEventData>) => {
+	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) =>
+	{
 		if (event.data.entity.__identifier__ == "minecraft:player")
 		{
-			system.executeCommand(`effect ${event.data.entity.id} invisibility 99999 255 true`, () => {})
-			system.executeCommand(`gamemode ${event.data.entity.id} a`, () => {})
-			system.executeCommand(`effect ${event.data.entity.id} resistance 99999 255 true`, () => {})
-			system.executeCommand(`effect ${event.data.entity.id} weakness 99999 255 true`, () => {})
+			makeObserver(event.data.entity)
 		}
-	} 
+	}
+
+	const makeObserver = (player: Player) => {
+		system.executeCommand(`effect ${player.id} invisibility 99999 255 true`, () => {})
+		system.executeCommand(`gamemode ${player.id} a`, () => {})
+		system.executeCommand(`effect ${player.id} resistance 99999 255 true`, () => {})
+		system.executeCommand(`effect ${player.id} weakness 99999 255 true`, () => {})
+	}
+
+	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) =>
+	{
+		players.push(event.data.player);
+	}
 }
 

@@ -1,14 +1,23 @@
 /// <reference types="minecraft-scripting-types-client" />
 
+interface IPlayerConnectedEventData 
+{
+	player: IEntity
+}
+
+
 namespace Client {
 	const system = client.registerSystem(0, 0);
+	let player: IEntity; 
 
 	// Setup which events to listen for
 	system.initialize = function() {
 		// Register any events you will send to the client
 		const eventDataDefaults = {narf: false}
 		system.registerEventData("teamfights:pinky", eventDataDefaults)
+		this.listenForEvent("minecraft:client_entered_world", collectPlayerData);
 
+		
 		// Register any components you will attach to game objects
 		// system.registerComponent(...)
 
@@ -44,5 +53,10 @@ namespace Client {
 
 			system.broadcastEvent("teamfights:pinky", eventData);
 		}
+	}
+
+	const collectPlayerData = (eventData: IEventData<IClientEnteredWorldEventData>) => {
+		player = eventData.data.player
+		system.broadcastEvent("teamfights:player_connected", eventData)
 	}
 }
