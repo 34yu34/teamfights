@@ -93,6 +93,13 @@ namespace Server {
 		}
 	}
 
+	function sendMessage(message: string)
+	{
+		const data : IEventData<IDisplayChatParameters> = system.createEventData(SendToMinecraftServer.DisplayChat);
+		data.data.message = message;
+		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data);
+	}
+
 	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) =>
 	{
 		if (event.data.entity.__identifier__ == "minecraft:player")
@@ -111,6 +118,7 @@ namespace Server {
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) =>
 	{
 		players.push(event.data.player);
+		sendMessage(`Player ${event.data.player.id} has connected`)
 	}
 }
 
