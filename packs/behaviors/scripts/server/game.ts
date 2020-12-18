@@ -1,0 +1,6 @@
+
+
+class Game
+{
+    Teams: Team[]
+}

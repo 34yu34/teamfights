@@ -36,5 +36,10 @@ namespace Server {
 			system.broadcastEvent(SendToMinecraftServer.DisplayChat, displayChatEvent);
 		}
 	}
+
+	const makeGroups = () => 
+	{
+		
+	}
 }
 
