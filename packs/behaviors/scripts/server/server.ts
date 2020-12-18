@@ -17,7 +17,7 @@ class Team
 		this.players = [];
 		this.id = 0;
     }
-};
+}
 
 class Game
 {
@@ -26,13 +26,13 @@ class Game
 
     constructor(players: Player[], noOfTeam: number = 2)
     {
-        this.players = players;
-        this.makeTeams(noOfTeam);
+        this.players = players
+        this.makeTeams(noOfTeam)
     }
 
     makeTeams(noOfTeam: number = 2)
     {
-        this.players.sort(() => 0.5 - Math.random());
+        this.players.sort(() => 0.5 - Math.random())
 
 		this.teams = new Array(noOfTeam).map(() => new Team())
 		
@@ -43,31 +43,31 @@ class Game
 		
 		for(let i = 0; i < this.teams.length; ++i)
 		{
-			this.teams[i].id = i;
+			this.teams[i].id = i
 		}
     }
-};
+}
 
 
 namespace Server {
-	const system = server.registerSystem(0, 0);
-	const players: Player[] = [];
+	const system = server.registerSystem(0, 0)
+	const players: Player[] = []
 
 	// Setup which events to listen for
 	system.initialize = function () {
-		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig);
-		scriptLoggerConfig.data.log_errors = true;
-		scriptLoggerConfig.data.log_information = true;
-		scriptLoggerConfig.data.log_warnings = true;
-		system.broadcastEvent(SendToMinecraftServer.ScriptLoggerConfig, scriptLoggerConfig);
+		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig)
+		scriptLoggerConfig.data.log_errors = true
+		scriptLoggerConfig.data.log_information = true
+		scriptLoggerConfig.data.log_warnings = true
+		system.broadcastEvent(SendToMinecraftServer.ScriptLoggerConfig, scriptLoggerConfig)
 	}
 
 	// per-tick updates
 	system.update = function() {
-		system.executeCommand("/say testing 1 2", (cb) => {});
+		giveEffectToPlayersOutsideBorders(5, "fatal_poison")
 	}
 
-	function sendMessage(message: string) {
+	const sendMessage = (message: string) => {
 		const data : IEventData<IDisplayChatParameters> = system.createEventData(SendToMinecraftServer.DisplayChat);
 		data.data.message = message;
 		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data);
@@ -86,10 +86,26 @@ namespace Server {
 		system.executeCommand(`effect ${player.id} weakness 99999 255 true`, () => {})
 	}
 
-	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) =>
-	{
+	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
 		players.push(event.data.player);
 		sendMessage(`Player ${event.data.player.id} has connected`)
+	}
+
+	const warnPlayersWorldBorderReducing = (newRadius: number, secondsLeft: number) => {
+		system.executeCommand(`title @a title "Reducing world border to ±${newRadius}²"`, (cb) => {})
+		system.executeCommand(`title @a subtitle "in ${secondsLeft} seconds`, (cb) => {})
+	}
+
+	const giveEffectToPlayersOutsideBorders = (radius: number, effect: string) => {
+		system.executeCommand(`title @a[x=${radius},dx=+500,y=0,dy=255,z=-5000,dz=10000] actionbar "§l§4You are past the border!"`, (cb) => {})
+		system.executeCommand(`title @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] actionbar "§l§4You are past the border!"`, (cb) => {})
+		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] actionbar "§l§4You are past the border!"`, (cb) => {})
+		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] actionbar "§l§4You are past the border!"`, (cb) => {})
+
+		system.executeCommand(`effect @a[x=${radius},dx=+500,y=0,dy=255,z=-5000,dz=10000] ${effect} 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] ${effect} 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] ${effect} 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] ${effect} 1 1 true`, (cb) => {})
 	}
 }
 
