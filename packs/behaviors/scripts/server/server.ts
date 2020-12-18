@@ -50,60 +50,31 @@ class Game
 
 
 namespace Server {
-	var system = server.registerSystem(0, 0);
-	let players: Player[];
+	const system = server.registerSystem(0, 0);
+	const players: Player[] = [];
 
 	// Setup which events to listen for
 	system.initialize = function () {
-		// Register any events you will send to the client
-		// system.registerEventData(...)
-
-		// Register any components you will attach to game objects
-		// system.registerComponent(...)
-
-		// Set up any events you wish to listen to
-		players = []
-
-		system.listenForEvent("minecraft:entity_death", onEntityDeath)
-		system.listenForEvent("teamfights:pinky", receivePinkyMessage);
-		system.listenForEvent("teamfights:player_connected", addPlayer)
-
-		// Enable full logging, useful for seeing errors, you will probably want to disable this for
-		// release versions of your scripts.
-		// Generally speaking it's not recommended to use broadcastEvent in initialize, but for configuring logging it's fine.
 		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig);
 		scriptLoggerConfig.data.log_errors = true;
 		scriptLoggerConfig.data.log_information = true;
 		scriptLoggerConfig.data.log_warnings = true;
 		system.broadcastEvent(SendToMinecraftServer.ScriptLoggerConfig, scriptLoggerConfig);
-
-
 	}
 
 	// per-tick updates
 	system.update = function() {
-		// Any logic that needs to happen every tick on the server.
+		system.executeCommand("/say testing 1 2", (cb) => {});
 	}
 
-	function receivePinkyMessage(parameters: IEventData<{narf: boolean}>) {
-		if (parameters.data.narf) {
-			var displayChatEvent = system.createEventData(SendToMinecraftServer.DisplayChat);
-			displayChatEvent.data.message = "The same thing we do every night Client. TRY TO TAKE OVER THE WORLD.";
-			system.broadcastEvent(SendToMinecraftServer.DisplayChat, displayChatEvent);
-		}
-	}
-
-	function sendMessage(message: string)
-	{
+	function sendMessage(message: string) {
 		const data : IEventData<IDisplayChatParameters> = system.createEventData(SendToMinecraftServer.DisplayChat);
 		data.data.message = message;
 		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data);
 	}
 
-	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) =>
-	{
-		if (event.data.entity.__identifier__ == "minecraft:player")
-		{
+	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) => {
+		if (event.data.entity.__identifier__ == "minecraft:player") {
 			makeObserver(event.data.entity)
 		}
 	}
