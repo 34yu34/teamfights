@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "header": {
+    "name": "Teamfights Behaviors",
+    "description": "stuff",
+    "uuid": "3f618bb1-fb11-49f5-b469-650b31ee8a6f",
+    "version": [
+      1,
+      0,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "description": "behaviours for Teamfights",
+      "type": "client_data",
+      "uuid": "e71743cb-8e79-40bf-9895-074ae70eb550",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "308b8eab-4c8e-42e5-b843-11b6be241e30",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

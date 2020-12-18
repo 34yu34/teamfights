@@ -1,0 +1,25 @@
+{
+  "format_version": 1,
+  "header": {
+    "name": "Teamfights Resources",
+    "description": "stuff",
+    "uuid": "308b8eab-4c8e-42e5-b843-11b6be241e30",
+    "version": [
+      1,
+      0,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "description": "Resources for Teamfights",
+      "type": "resources",
+      "uuid": "5041f6b2-7725-4488-882f-d83be064b0a2",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
