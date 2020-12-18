@@ -1,6 +1,0 @@
-
-
-class Game
-{
-    Teams: Team[]
-}

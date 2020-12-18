@@ -1,5 +1,48 @@
 /// <reference types="minecraft-scripting-types-server" />
 
+class Team
+{
+    players : any[]
+    id : number
+
+    constructor()
+    {
+		this.players = [];
+		this.id = 0;
+    }
+
+};
+
+class Game
+{
+    teams: Team[]
+    players: any[]
+
+    constructor(players: any[], noOfTeam: number = 2)
+    {
+        this.players = players;
+        this.makeTeams(noOfTeam);
+    }
+
+    makeTeams(noOfTeam: number = 2)
+    {
+        this.players.sort(() => 0.5 - Math.random());
+
+		this.teams = new Array(noOfTeam).map(() => new Team())
+		
+        for (let i = 0; i < this.players.length; ++i)
+        {
+            this.teams[i % noOfTeam].players.push(this.players[i])
+		}
+		
+		for(let i = 0; i < this.teams.length; ++i)
+		{
+			this.teams[i].id = i;
+		}
+    }
+};
+
+
 namespace Server {
 	var system = server.registerSystem(0, 0);
 
