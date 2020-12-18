@@ -1,8 +1,22 @@
 /// <reference types="minecraft-scripting-types-server" />
 
+interface Entity
+{
+	__type__: string;
+	__identifier__: string;
+	id: number;
+}
+
+class Player implements Entity
+{
+	__identifier__: string;
+	__type__: string;
+	id: number;
+}
+
 class Team
 {
-    players : any[]
+    players : Player[]
     id : number
 
     constructor()
@@ -10,15 +24,14 @@ class Team
 		this.players = [];
 		this.id = 0;
     }
-
 };
 
 class Game
 {
     teams: Team[]
-    players: any[]
+    players: Player[]
 
-    constructor(players: any[], noOfTeam: number = 2)
+    constructor(players: Player[], noOfTeam: number = 2)
     {
         this.players = players;
         this.makeTeams(noOfTeam);
@@ -80,9 +93,7 @@ namespace Server {
 		}
 	}
 
-	const makeGroups = () => 
-	{
-		
-	}
+	const makeObserver = (player: any) => {
+	} 
 }
 
