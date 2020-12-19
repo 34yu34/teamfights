@@ -62,6 +62,18 @@ namespace Server {
 		update() {
 			this.timer += 1
 			giveEffectToPlayersOutsideBorders(this.radius)
+
+			// every second
+			if (this.timer % 200 === 0)
+			{
+				warnPlayersWorldBorderReducing(this.radius * this.REDUCE_RATIO, (this.REDUCE_TICK / 200) % (this.timer / 200))
+			}
+
+			// every reduction time
+			if (this.timer % this.REDUCE_TICK === 0)
+			{
+				this.radius *= this.REDUCE_RATIO;
+			}
 		}
 	}
 
@@ -115,8 +127,11 @@ namespace Server {
 
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
 		const player = new Player(event.data.player)
-		players.push(player)
-		sendMessage(`Player ${player.name} has connected`)
+		if (!players.find((p: Player) => {p.name == player.name}))
+		{
+			players.push(player)
+			sendMessage(`Player ${player.name} has connected`)
+		}
 	}
 
 	const warnPlayersWorldBorderReducing = (newRadius: number, secondsLeft: number) => {
