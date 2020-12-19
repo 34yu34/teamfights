@@ -53,6 +53,7 @@ namespace Server {
 	}
 
 	const players: Player[] = []
+	let game: Game;
 
 	// Setup which events to listen for
 	system.initialize = function () {
@@ -89,6 +90,10 @@ namespace Server {
 		system.executeCommand(`gamemode ${player.name} a`, () => {})
 		system.executeCommand(`effect ${player.name} resistance 99999 255 true`, () => {})
 		system.executeCommand(`effect ${player.name} weakness 99999 255 true`, () => {})
+	}
+
+	const startGame = () => {
+		game = new Game(players);
 	}
 
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
