@@ -29,11 +29,18 @@ namespace Server {
 	}
 
 	class Game {
-		teams: Team[]
-		players: Player[]
+		REDUCE_TICK: number = 5 * 200 * 60
+		REDUCE_RATIO: number = 0.9
+		START_AREA: number = 500
+
+		teams: Team[];
+		players: Player[];
+		timer: number;
+		area: number;
 
 		constructor(players: Player[], noOfTeam: number = 2) {
 			this.players = players
+			this.timer = 0;
 			this.makeTeams(noOfTeam)
 		}
 
@@ -49,6 +56,11 @@ namespace Server {
 			for (let i = 0; i < this.teams.length; ++i) {
 				this.teams[i].id = i
 			}
+		}
+
+		update()
+		{
+			this.timer += 1;
 		}
 	}
 
@@ -71,6 +83,7 @@ namespace Server {
 	// per-tick updates
 	system.update = function() {
 		giveEffectToPlayersOutsideBorders(10)
+		game.update()
 	}
 
 	const sendMessage = (message: string) => {
