@@ -20,11 +20,20 @@ namespace Server {
 
 	class Team {
 		players: Player[]
+		position: VectorXYZ
 		id: number
 
 		constructor() {
 			this.players = [];
 			this.id = 0;
+			this.position = {x: 0, y: 0, z: 0}
+		}
+
+		tp() {
+			for (let i = 0; i < this.players.length; ++i)
+			{
+				system.executeCommand(`/tp ${this.players[i].name} ${this.position.x} 80 ${this.position.z}`, () => {})
+			}
 		}
 	}
 
@@ -54,10 +63,15 @@ namespace Server {
 				this.teams[i % noOfTeam].players.push(this.players[i])
 			}
 
+			let angle: number = 2 * Math.PI / noOfTeam;
+
 			for (let i = 0; i < this.teams.length; ++i) {
 				this.teams[i].id = i
+				this.teams[i].position.x = this.REDUCE_RATIO * this.radius * Math.sin(angle * i)
+				this.teams[i].position.y = this.REDUCE_RATIO * this.radius * Math.cos(angle * i)
 			}
 		}
+
 
 		update() {
 			this.timer += 1
