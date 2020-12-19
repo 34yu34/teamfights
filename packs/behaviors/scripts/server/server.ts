@@ -70,7 +70,7 @@ namespace Server {
 
 	// per-tick updates
 	system.update = function() {
-		giveEffectToPlayersOutsideBorders(5, "fatal_poison")
+		giveEffectToPlayersOutsideBorders(10)
 	}
 
 	const sendMessage = (message: string) => {
@@ -107,16 +107,21 @@ namespace Server {
 		system.executeCommand(`title @a subtitle "in ${secondsLeft} seconds`, (cb) => {})
 	}
 
-	const giveEffectToPlayersOutsideBorders = (radius: number, effect: string) => {
-		system.executeCommand(`title @a[x=${radius},dx=+500,y=0,dy=255,z=-5000,dz=10000] actionbar "§l§4You are past the border!"`, (cb) => {})
-		system.executeCommand(`title @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] actionbar "§l§4You are past the border!"`, (cb) => {})
-		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] actionbar "§l§4You are past the border!"`, (cb) => {})
-		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] actionbar "§l§4You are past the border!"`, (cb) => {})
+	const giveEffectToPlayersOutsideBorders = (radius: number) => {
+		system.executeCommand(`title @a[x=${radius},dx=+5000,y=0,dy=255,z=-5000,dz=10000] actionbar §l§4You are past the border!`, (cb) => {})
+		system.executeCommand(`title @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] actionbar §l§4You are past the border!`, (cb) => {})
+		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] actionbar §l§4You are past the border!`, (cb) => {})
+		system.executeCommand(`title @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] actionbar §l§4You are past the border!`, (cb) => {})
 
-		system.executeCommand(`effect @a[x=${radius},dx=+500,y=0,dy=255,z=-5000,dz=10000] ${effect} 1 1 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] ${effect} 1 1 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] ${effect} 1 1 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] ${effect} 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=${radius},dx=+5000,y=0,dy=255,z=-5000,dz=10000] wither 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] wither 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] wither 1 1 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] wither 1 1 true`, (cb) => {})
+
+		system.executeCommand(`effect @a[x=${radius},dx=+5000,y=0,dy=255,z=-5000,dz=10000] regeneration 1 3 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] regeneration 1 3 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] regeneration 1 3 true`, (cb) => {})
+		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] regeneration 1 3 true`, (cb) => {})
 	}
 }
 
