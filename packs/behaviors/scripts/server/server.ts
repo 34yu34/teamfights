@@ -117,11 +117,6 @@ namespace Server {
 		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] wither 1 1 true`, (cb) => {})
 		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] wither 1 1 true`, (cb) => {})
 		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] wither 1 1 true`, (cb) => {})
-
-		system.executeCommand(`effect @a[x=${radius},dx=+5000,y=0,dy=255,z=-5000,dz=10000] regeneration 1 3 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] regeneration 1 3 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] regeneration 1 3 true`, (cb) => {})
-		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] regeneration 1 3 true`, (cb) => {})
 	}
 }
 
