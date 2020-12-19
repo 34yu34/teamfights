@@ -52,6 +52,9 @@ namespace Server {
 			this.players = players
 			this.timer = 0;
 			this.makeTeams(noOfTeam)
+			this.teams.forEach(team => {
+				team.tp()
+			});
 		}
 
 		makeTeams(noOfTeam: number = 2) {
@@ -64,14 +67,12 @@ namespace Server {
 			}
 
 			let angle: number = 2 * Math.PI / noOfTeam;
-
 			for (let i = 0; i < this.teams.length; ++i) {
 				this.teams[i].id = i
 				this.teams[i].position.x = this.REDUCE_RATIO * this.radius * Math.sin(angle * i)
 				this.teams[i].position.y = this.REDUCE_RATIO * this.radius * Math.cos(angle * i)
 			}
 		}
-
 
 		update() {
 			this.timer += 1
