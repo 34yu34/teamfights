@@ -4,17 +4,17 @@ namespace Server {
 	const system = server.registerSystem(0, 0)
 
 	class Player implements IEntity {
-		readonly __identifier__: string;
-		readonly __type__: "entity" | "item_entity";
-		readonly id: number;
-		readonly name: string;
+		readonly __identifier__: string
+		readonly __type__: "entity" | "item_entity"
+		readonly id: number
+		readonly name: string
 
 		constructor(player: IEntity) {
-			this.__identifier__ = player.__identifier__;
-			this.__type__ = player.__type__;
-			this.id = player.id;
-			let component: IComponent<INameableComponent> = system.getComponent(player, MinecraftComponent.Nameable);
-			this.name = component.data.name;
+			this.__identifier__ = player.__identifier__
+			this.__type__ = player.__type__
+			this.id = player.id
+			let component: IComponent<INameableComponent> = system.getComponent(player, MinecraftComponent.Nameable)
+			this.name = component.data.name
 		}
 	}
 
@@ -31,12 +31,13 @@ namespace Server {
 	class Game {
 		REDUCE_TICK: number = 5 * 200 * 60
 		REDUCE_RATIO: number = 0.9
-		START_AREA: number = 500
+		START_RADIUS: number = 500
 
-		teams: Team[];
-		players: Player[];
-		timer: number;
-		area: number;
+		teams: Team[]
+		players: Player[]
+		timer: number
+		radius: number
+		started: boolean
 
 		constructor(players: Player[], noOfTeam: number = 2) {
 			this.players = players
@@ -58,14 +59,14 @@ namespace Server {
 			}
 		}
 
-		update()
-		{
-			this.timer += 1;
+		update() {
+			this.timer += 1
+			giveEffectToPlayersOutsideBorders(this.radius)
 		}
 	}
 
 	const players: Player[] = []
-	let game: Game;
+	let game: Game
 
 	// Setup which events to listen for
 	system.initialize = function () {
@@ -82,14 +83,17 @@ namespace Server {
 
 	// per-tick updates
 	system.update = function() {
-		giveEffectToPlayersOutsideBorders(10)
+		if (game == null) {
+			return
+		}
+
 		game.update()
 	}
 
 	const sendMessage = (message: string) => {
-		const data : IEventData<IDisplayChatParameters> = system.createEventData(SendToMinecraftServer.DisplayChat);
-		data.data.message = message;
-		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data);
+		const data : IEventData<IDisplayChatParameters> = system.createEventData(SendToMinecraftServer.DisplayChat)
+		data.data.message = message
+		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data)
 	}
 
 	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) => {
@@ -106,12 +110,12 @@ namespace Server {
 	}
 
 	const startGame = () => {
-		game = new Game(players);
+		game = new Game(players)
 	}
 
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
-		const player = new Player(event.data.player);
-		players.push(player);
+		const player = new Player(event.data.player)
+		players.push(player)
 		sendMessage(`Player ${player.name} has connected`)
 	}
 
