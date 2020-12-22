@@ -33,9 +33,10 @@ namespace Server {
 		}
 
 		tp() {
+			system.executeCommand(`tp @a effect slow_falling 30 1 true`, () => { })
 			for (let i = 0; i < this.players.length; ++i)
 			{
-				system.executeCommand(`/tp ${this.players[i].name} ${this.position.x} 80 ${this.position.z}`, () => {})
+				system.executeCommand(`tp ${this.players[i].name} ${this.position.x} 100 ${this.position.z}`, () => {})
 			}
 		}
 	}
