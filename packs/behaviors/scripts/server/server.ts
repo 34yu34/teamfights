@@ -102,6 +102,11 @@ namespace Server {
 				giveEffectToPlayersOutsideBorders(this.radius)
 			}
 
+			if (this.timer + (SECOND / 4) % (SECOND / 2))
+			{
+				makeObserver();
+			}
+
 			if (this.timer % this.reduceTick  === 0) // every reduction time
 			{
 				this.radius = Math.round(this.radius * Game.REDUCE_RATIO)
@@ -172,17 +177,23 @@ namespace Server {
 		system.broadcastEvent(SendToMinecraftServer.DisplayChat, data)
 	}
 
+	const tagSpectator = (player : Player) =>
+	{
+		system.executeCommand(`tag spectator add ${player.name}`, () => {});
+	}
+
 	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) => {
 		if (event.data.entity.__identifier__ == "minecraft:player") {
-			makeObserver(new Player(event.data.entity))
+			let player: Player = new Player(event.data.entity)
+			tagSpectator(player)
 		}
 	}
 
-	const makeObserver = (player: Player) => {
-		system.executeCommand(`effect ${player.name} invisibility 99999 255 true`, () => {})
-		system.executeCommand(`gamemode ${player.name} a`, () => {})
-		system.executeCommand(`effect ${player.name} resistance 99999 255 true`, () => {})
-		system.executeCommand(`effect ${player.name} weakness 99999 255 true`, () => {})
+	const makeObserver = () => {
+		system.executeCommand(`effect @a[tag=spectator] invisibility 2 255 true`, () => {})
+		system.executeCommand(`gamemode @a[tag=spectator] a`, () => {})
+		system.executeCommand(`effect @a[tag=spectator] resistance 2 255 true`, () => {})
+		system.executeCommand(`effect @a[tag=spectator] weakness 2 255 true`, () => {})
 	}
 
 	const startGame = (eventData: any) => {
@@ -191,6 +202,12 @@ namespace Server {
 
 	const addPlayer = (event: IEventData<IClientEnteredWorldEventData>) => {
 		const player = new Player(event.data.player)
+		if (game != null)
+		{
+			tagSpectator(player)
+			return
+		}
+
 		if (!players.find((p: Player) => {p.name == player.name}))
 		{
 			players.push(player)
