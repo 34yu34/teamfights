@@ -29,6 +29,10 @@ namespace Client {
 
 		system.registerEventData("teamfights:game_start", {})
 		system.registerEventData("teamfights:player_connected", {})
+
+		system.registerEventData("teamfights:set_radius", { radius: 250 })
+		system.registerEventData("teamfights:set_teams_number", { teamsNumber: 2 })
+		system.registerEventData("teamfights:set_reduction_time", { reductionTime: 2 })
 	}
 
 	system.update = () => {
@@ -52,9 +56,30 @@ namespace Client {
 		}
 	
 		// UI engine sent us an event.
-		if (eventData === "startPressed" ) {
+		if (eventData === "startPressed") {
 			startGame()
-		}
+		} else {
+			const match = eventData.match(/(\w+):(\w+)/)
+			switch (match[1]) {
+				case 'teamNumberButtonPressed':
+					let teamsNumberEventData = system.createEventData("teamfights:set_teams_number")
+					teamsNumberEventData.data.teamsNumber = +match[2]
+					system.broadcastEvent("teamfights:set_teams_number", teamsNumberEventData)
+					break
+
+				case 'radiusButtonPressed':
+					let radiusEventData = system.createEventData("teamfights:set_radius")
+					radiusEventData.data.radius = +match[2]
+					system.broadcastEvent("teamfights:set_radius", radiusEventData)
+					break
+
+				case 'reductionTimeButtonPressed':
+					let radiusReductionTimeEventData = system.createEventData("teamfights:set_reduction_time")
+					radiusReductionTimeEventData.data.reductionTime = +match[2]
+					system.broadcastEvent("teamfights:set_reduction_time", radiusReductionTimeEventData)
+					break;
+			}
+        }
 	}
 
 	const onClientEnteredWorld = (eventData: any) => {

@@ -29,7 +29,7 @@ button {
 	font-size: 20px;
 }
 
-button:hover {
+button:hover, button.pressed {
 	border: 3px solid #FFFFFF;
 	background-color: #007305;
 	color: #FFFFFF
@@ -41,4 +41,28 @@ button:hover {
 	align-items: center;
 	flex-direction: column;
 	position: relative;
+}
+
+.btn-section {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+.btn-section > p {
+	font-family: 'MinecraftTen' !important;
+	font-size: 2em;
+}
+
+.btn-section__btns > button {
+	margin: 1em;
+}
+
+.btn-section__radius, .btn-section__team-number {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-bottom: 2em;
 }

@@ -1,6 +1,10 @@
 /// <reference types="minecraft-scripting-types-server" />
 
 namespace Server {
+	let radiusSetting = 250
+	let teamsNumberSetting = 2
+	let radiusReductionTimeSetting = 2
+
 	const SECOND: number = 20
 	const MINUTE: number = 60
 
@@ -33,7 +37,9 @@ namespace Server {
 		}
 
 		tp() {
-			system.executeCommand(`tp @a effect slow_falling 30 1 true`, () => { })
+			system.executeCommand(`gamemode survival @a`, () => { })
+			system.executeCommand(`effect @a slow_falling 30 1 true`, () => { })
+			system.executeCommand(`clear @a`, () => { })
 			for (let i = 0; i < this.players.length; ++i)
 			{
 				system.executeCommand(`tp ${this.players[i].name} ${this.position.x} 100 ${this.position.z}`, () => {})
@@ -42,23 +48,23 @@ namespace Server {
 	}
 
 	class Game {
-		static readonly REDUCE_TICK: number = 2 * MINUTE * SECOND
 		static readonly REDUCE_RATIO: number = 0.9
-		static readonly START_RADIUS: number = 500
 
 		teams: Team[]
 		players: Player[]
 		timer: number
 		radius: number
 		broadcastedGameStarted: boolean
+		reduceTick: number
 
 		constructor(players: Player[], noOfTeam: number = 2) {
+			this.reduceTick = radiusReductionTimeSetting * MINUTE * SECOND
 			this.players = players
 			this.timer = 0
 			this.broadcastedGameStarted = false
-			this.radius = Game.START_RADIUS
+			this.radius = radiusSetting
 
-			this.makeTeams(noOfTeam)
+			this.makeTeams(teamsNumberSetting)
 
 			for (let team of this.teams) {
 				team.tp()
@@ -96,24 +102,24 @@ namespace Server {
 				giveEffectToPlayersOutsideBorders(this.radius)
 			}
 
-			if (this.timer % Game.REDUCE_TICK === 0) // every reduction time
+			if (this.timer % this.reduceTick  === 0) // every reduction time
 			{
 				this.radius = Math.round(this.radius * Game.REDUCE_RATIO)
 			}
 			else if (this.timer > (30 * SECOND)
 				&& (this.timer % SECOND === 0)
-				&& ((Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND) < 31)
+				&& ((this.reduceTick - (this.timer % this.reduceTick)) / SECOND) < 31)
 			{
 				alertPlayersWorldBorderReducing(
-					this.radius * Game.REDUCE_RATIO,
-					(Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND
+					Math.round(this.radius * Game.REDUCE_RATIO),
+					(this.reduceTick - (this.timer % this.reduceTick)) / SECOND
 				)
             }
 			else if (this.timer % (MINUTE * SECOND) === 0) // every minute
 			{
 				warnPlayersWorldBorderReducing(
-					this.radius * Game.REDUCE_RATIO,
-					(Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND
+					Math.round(this.radius * Game.REDUCE_RATIO),
+					(this.reduceTick - (this.timer % this.reduceTick)) / SECOND
 				)
 			}
 		}
@@ -127,6 +133,10 @@ namespace Server {
 		system.listenForEvent(ReceiveFromMinecraftServer.EntityDeath, onEntityDeath)
 		system.listenForEvent("teamfights:player_connected", addPlayer)
 		system.listenForEvent("teamfights:game_start", startGame)
+
+		system.listenForEvent("teamfights:set_radius", setRadius)
+		system.listenForEvent("teamfights:set_teams_number", setTeamsNumber)
+		system.listenForEvent("teamfights:set_reduction_time", setReductionTime)
 
 		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig)
 		scriptLoggerConfig.data.log_errors = true
@@ -211,6 +221,18 @@ namespace Server {
 		system.executeCommand(`effect @a[x=${-radius},dx=-5000,y=0,dy=255,z=-5000,dz=10000] wither 1 1 true`, (cb) => {})
 		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${radius},dz=5000] wither 1 1 true`, (cb) => {})
 		system.executeCommand(`effect @a[x=-5000,dx=10000,y=0,dy=255,z=${-radius},dz=-5000] wither 1 1 true`, (cb) => {})
+	}
+
+	const setRadius = (eventData: IEventData<any>) => {
+		radiusSetting = eventData.data.radius
+	}
+
+	const setTeamsNumber = (eventData: IEventData<any>) => {
+		teamsNumberSetting = eventData.data.teamsNumber
+	}
+
+	const setReductionTime = (eventData: IEventData<any>) => {
+		radiusReductionTimeSetting = eventData.data.reductionTime
 	}
 }
 
