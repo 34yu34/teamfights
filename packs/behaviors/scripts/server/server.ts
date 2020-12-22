@@ -187,7 +187,7 @@ namespace Server {
 			spectators.push(player)
 		}
 		system.executeCommand(`tag ${player.name} add spectator`, (cb: IExecuteCommandCallback) => {
-			if (cb.data.statusCode >= 1)
+			if (cb.data.statusCode == 0)
 			{
 				spectators.find((p : Player) => { p.name == player.name}).has_been_tagged = true
 			}
