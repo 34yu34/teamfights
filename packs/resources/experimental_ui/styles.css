@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'MinecraftTen';
+    src: url(fonts/MinecraftTen.otf);
+}
+
+body {
+    font-family: "MinecraftTen";
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+button {
+	color: #4C4C4C;
+	background-color: #d4d4d4;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 0;
+	margin-right: 4px;
+	display: flex;
+	border: 3px solid #8b8b8b;
+	font-family: 'MinecraftTen';
+	font-size: 20px;
+}
+
+button:hover {
+	border: 3px solid #FFFFFF;
+	background-color: #007305;
+	color: #FFFFFF
+}
+
+.GameMessage {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	position: relative;
+}

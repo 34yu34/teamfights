@@ -50,7 +50,7 @@ namespace Server {
 
 		constructor(players: Player[], noOfTeam: number = 2) {
 			this.players = players
-			this.timer = 0;
+			this.timer = 0
 			this.makeTeams(noOfTeam)
 			this.teams.forEach(team => {
 				team.tp()
@@ -97,9 +97,10 @@ namespace Server {
 
 	// Setup which events to listen for
 	system.initialize = function () {
-
 		system.listenForEvent(ReceiveFromMinecraftServer.EntityDeath, onEntityDeath)
 		system.listenForEvent("teamfights:player_connected", addPlayer)
+
+		system.listenForEvent("teamfights:game_start", (eventData) => startGame(eventData))
 
 		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig)
 		scriptLoggerConfig.data.log_errors = true
@@ -136,7 +137,7 @@ namespace Server {
 		system.executeCommand(`effect ${player.name} weakness 99999 255 true`, () => {})
 	}
 
-	const startGame = () => {
+	const startGame = (eventData: any) => {
 		game = new Game(players)
 	}
 
