@@ -179,7 +179,7 @@ namespace Server {
 
 	const tagSpectator = (player : Player) =>
 	{
-		system.executeCommand(`tag spectator add ${player.name}`, () => {});
+		system.executeCommand(`tag ${player.name} add spectator`, () => {});
 	}
 
 	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) => {
