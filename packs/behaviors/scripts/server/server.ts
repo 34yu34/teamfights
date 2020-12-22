@@ -98,11 +98,11 @@ namespace Server {
 		update() {
 			this.timer += 1
 
-			if (this.timer % (SECOND / 2)) {
+			if (this.timer % (SECOND / 2) == 0) {
 				giveEffectToPlayersOutsideBorders(this.radius)
 			}
 
-			if (this.timer + (SECOND / 4) % (SECOND / 2))
+			if ((this.timer + (SECOND / 4)) % (SECOND / 2) == 0)
 			{
 				makeObserver();
 			}
