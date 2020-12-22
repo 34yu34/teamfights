@@ -15,6 +15,9 @@ namespace Client {
 
 		system.listenForEvent("minecraft:client_entered_world", (eventData) => onClientEnteredWorld(eventData))
 
+		system.listenForEvent("teamfights:game_started", (eventData) => onGameStarted(eventData))
+		system.listenForEvent("teamfights:game_ended", (eventData) => onGameEnd(eventData))
+
 		// Enable full logging, useful for seeing errors, you will probably want to disable this for
 		// release versions of your scripts.
 		// Generally speaking it's not recommended to use broadcastEvent in initialize, but for configuring logging it's fine.
@@ -25,6 +28,7 @@ namespace Client {
 		system.broadcastEvent(SendToMinecraftClient.ScriptLoggerConfig, scriptLoggerConfig)
 
 		system.registerEventData("teamfights:game_start", {})
+		system.registerEventData("teamfights:player_connected", {})
 	}
 
 	system.update = () => {
@@ -55,11 +59,29 @@ namespace Client {
 
 	const onClientEnteredWorld = (eventData: any) => {
 		// Client has entered the world, show the starting screen
+		collectPlayerData(eventData)
+		loadUI("start_menu.html")
+	}
+
+	const onGameStarted = (eventData: any) => {
+		unloadUI("start_menu.html")
+	}
+
+	const onGameEnd = (eventData: any) => {
+		loadUI("start_menu.html")
+	}
+
+	const loadUI = (uiPath: string) => {
 		let loadEventData = system.createEventData("minecraft:load_ui")
-		loadEventData.data.path = "rpg_game_start.html"
+		loadEventData.data.path = uiPath
 		loadEventData.data.options.is_showing_menu = true
 		loadEventData.data.options.absorbs_input = true
-		loadEventData.data.options.render_only_when_topmost = false
 		system.broadcastEvent("minecraft:load_ui", loadEventData)
 	}
+
+	const unloadUI = (uiPath: string) => {
+		let unloadEventData = system.createEventData("minecraft:unload_ui")
+		unloadEventData.data.path = uiPath
+		system.broadcastEvent("minecraft:unload_ui", unloadEventData)
+    }
 }

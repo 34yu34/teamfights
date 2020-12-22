@@ -1,6 +1,9 @@
 /// <reference types="minecraft-scripting-types-server" />
 
 namespace Server {
+	const SECOND: number = 20
+	const MINUTE: number = 60
+
 	const system = server.registerSystem(0, 0)
 
 	class Player implements IEntity {
@@ -38,56 +41,79 @@ namespace Server {
 	}
 
 	class Game {
-		REDUCE_TICK: number = 5 * 200 * 60
-		REDUCE_RATIO: number = 0.9
-		START_RADIUS: number = 500
+		static readonly REDUCE_TICK: number = 2 * MINUTE * SECOND
+		static readonly REDUCE_RATIO: number = 0.9
+		static readonly START_RADIUS: number = 500
 
 		teams: Team[]
 		players: Player[]
 		timer: number
 		radius: number
-		started: boolean
+		broadcastedGameStarted: boolean
 
 		constructor(players: Player[], noOfTeam: number = 2) {
 			this.players = players
 			this.timer = 0
+			this.broadcastedGameStarted = false
+			this.radius = Game.START_RADIUS
+
 			this.makeTeams(noOfTeam)
-			this.teams.forEach(team => {
+
+			for (let team of this.teams) {
 				team.tp()
-			});
+			}
 		}
 
 		makeTeams(noOfTeam: number = 2) {
 			this.players.sort(() => 0.5 - Math.random())
 
-			this.teams = new Array(noOfTeam).map(() => new Team())
+			this.teams = new Array(noOfTeam)
 
 			for (let i = 0; i < this.players.length; ++i) {
-				this.teams[i % noOfTeam].players.push(this.players[i])
+				let team = this.teams[i % noOfTeam]
+
+				if (team == null) {
+					this.teams[i % noOfTeam] = new Team()
+					team = this.teams[i % noOfTeam]
+				}
+
+				team.players.push(this.players[i])
 			}
 
 			let angle: number = 2 * Math.PI / noOfTeam;
 			for (let i = 0; i < this.teams.length; ++i) {
 				this.teams[i].id = i
-				this.teams[i].position.x = this.REDUCE_RATIO * this.radius * Math.sin(angle * i)
-				this.teams[i].position.y = this.REDUCE_RATIO * this.radius * Math.cos(angle * i)
+				this.teams[i].position.x = Game.REDUCE_RATIO * this.radius * Math.round(Math.sin(angle * i) * 100) / 100
+				this.teams[i].position.z = Game.REDUCE_RATIO * this.radius * Math.round(Math.cos(angle * i) * 100) / 100
 			}
 		}
 
 		update() {
 			this.timer += 1
-			giveEffectToPlayersOutsideBorders(this.radius)
 
-			// every second
-			if (this.timer % 200 === 0)
-			{
-				warnPlayersWorldBorderReducing(this.radius * this.REDUCE_RATIO, (this.REDUCE_TICK / 200) % (this.timer / 200))
+			if (this.timer % (SECOND / 2)) {
+				giveEffectToPlayersOutsideBorders(this.radius)
 			}
 
-			// every reduction time
-			if (this.timer % this.REDUCE_TICK === 0)
+			if (this.timer % Game.REDUCE_TICK === 0) // every reduction time
 			{
-				this.radius *= this.REDUCE_RATIO;
+				this.radius = Math.round(this.radius * Game.REDUCE_RATIO)
+			}
+			else if (this.timer > (30 * SECOND)
+				&& (this.timer % SECOND === 0)
+				&& ((Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND) < 31)
+			{
+				alertPlayersWorldBorderReducing(
+					this.radius * Game.REDUCE_RATIO,
+					(Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND
+				)
+            }
+			else if (this.timer % (MINUTE * SECOND) === 0) // every minute
+			{
+				warnPlayersWorldBorderReducing(
+					this.radius * Game.REDUCE_RATIO,
+					(Game.REDUCE_TICK - (this.timer % Game.REDUCE_TICK)) / SECOND
+				)
 			}
 		}
 	}
@@ -99,20 +125,31 @@ namespace Server {
 	system.initialize = function () {
 		system.listenForEvent(ReceiveFromMinecraftServer.EntityDeath, onEntityDeath)
 		system.listenForEvent("teamfights:player_connected", addPlayer)
-
-		system.listenForEvent("teamfights:game_start", (eventData) => startGame(eventData))
+		system.listenForEvent("teamfights:game_start", startGame)
 
 		const scriptLoggerConfig = system.createEventData(SendToMinecraftServer.ScriptLoggerConfig)
 		scriptLoggerConfig.data.log_errors = true
 		scriptLoggerConfig.data.log_information = true
 		scriptLoggerConfig.data.log_warnings = true
 		system.broadcastEvent(SendToMinecraftServer.ScriptLoggerConfig, scriptLoggerConfig)
+
+		system.registerEventData("teamfights:game_started", {})
+		system.registerEventData("teamfights:game_ended", {})
 	}
 
 	// per-tick updates
 	system.update = function() {
 		if (game == null) {
 			return
+		}
+
+		if (!game.broadcastedGameStarted) {
+			game.broadcastedGameStarted = true
+
+			const data : IEventData<any> = system.createEventData("teamfights:game_started")
+			system.broadcastEvent("teamfights:game_started", data)
+
+			warnGameStarted()
 		}
 
 		game.update()
@@ -151,8 +188,16 @@ namespace Server {
 	}
 
 	const warnPlayersWorldBorderReducing = (newRadius: number, secondsLeft: number) => {
-		system.executeCommand(`title @a title "Reducing world border to ±${newRadius}²"`, (cb) => {})
-		system.executeCommand(`title @a subtitle "in ${secondsLeft} seconds`, (cb) => {})
+		system.executeCommand(`title @a actionbar Reduction to ${newRadius} in ${secondsLeft} seconds`, (cb) => {})
+	}
+
+	const alertPlayersWorldBorderReducing = (newRadius: number, secondsLeft: number) => {
+		system.executeCommand(`title @a actionbar §4Reduction to ${newRadius} in ${secondsLeft}...`, (cb) => { })
+	}
+
+	const warnGameStarted = () => {
+		system.executeCommand(`title @a title The game has begun!`, (cb) => { })
+		system.executeCommand(`title @a subtitle Good luck!`, (cb) => {})
 	}
 
 	const giveEffectToPlayersOutsideBorders = (radius: number) => {
