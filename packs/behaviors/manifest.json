@@ -5,9 +5,9 @@
     "description": "Fight to death in a battle royal inspired game mode",
     "uuid": "3f618bb1-fb11-49f5-b469-650b31ee8a6f",
     "version": [
+      1,
       0,
-      0,
-      1
+      0
     ]
   },
   "modules": [
@@ -16,9 +16,9 @@
       "type": "client_data",
       "uuid": "e71743cb-8e79-40bf-9895-074ae70eb550",
       "version": [
+        1,
         0,
-        0,
-        1
+        0
       ]
     }
   ],

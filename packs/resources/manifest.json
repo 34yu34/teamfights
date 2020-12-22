@@ -2,7 +2,7 @@
   "format_version": 1,
   "header": {
     "name": "Teamfights Resources",
-    "description": "stuff",
+    "description": "Experimental UI to setup the teamfights behavior pack",
     "uuid": "308b8eab-4c8e-42e5-b843-11b6be241e30",
     "version": [
       1,
