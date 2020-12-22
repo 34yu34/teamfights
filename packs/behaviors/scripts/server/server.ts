@@ -15,6 +15,7 @@ namespace Server {
 		readonly __type__: "entity" | "item_entity"
 		readonly id: number
 		readonly name: string
+		has_been_tagged: boolean
 
 		constructor(player: IEntity) {
 			this.__identifier__ = player.__identifier__
@@ -22,6 +23,7 @@ namespace Server {
 			this.id = player.id
 			let component: IComponent<INameableComponent> = system.getComponent(player, MinecraftComponent.Nameable)
 			this.name = component.data.name
+			this.has_been_tagged = false
 		}
 	}
 
@@ -131,6 +133,7 @@ namespace Server {
 	}
 
 	const players: Player[] = []
+	const spectators: Player[] = []
 	let game: Game
 
 	// Setup which events to listen for
@@ -179,7 +182,16 @@ namespace Server {
 
 	const tagSpectator = (player : Player) =>
 	{
-		system.executeCommand(`tag ${player.name} add spectator`, () => {});
+		if (!spectators.find((p : Player) => {return p.name == player.name}))
+		{
+			spectators.push(player)
+		}
+		system.executeCommand(`tag ${player.name} add spectator`, (cb: IExecuteCommandCallback) => {
+			if (cb.data.statusCode >= 1)
+			{
+				spectators.find((p : Player) => { p.name == player.name}).has_been_tagged = true
+			}
+		});
 	}
 
 	const onEntityDeath = (event: IEventData<IEntityDeathEventData>) => {
@@ -190,10 +202,17 @@ namespace Server {
 	}
 
 	const makeObserver = () => {
+		spectators.forEach(player => {
+			if (!player.has_been_tagged)
+			{
+				tagSpectator(player)
+			}
+		});
 		system.executeCommand(`effect @a[tag=spectator] invisibility 2 255 true`, () => {})
 		system.executeCommand(`gamemode @a[tag=spectator] a`, () => {})
 		system.executeCommand(`effect @a[tag=spectator] resistance 2 255 true`, () => {})
 		system.executeCommand(`effect @a[tag=spectator] weakness 2 255 true`, () => {})
+		system.executeCommand(`effect @a[tag=spectator] mining_fatigue 2 255 true`, () => {})
 	}
 
 	const startGame = (eventData: any) => {
